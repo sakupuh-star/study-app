@@ -1,0 +1,98 @@
+body {
+  font-family: sans-serif;
+  background: #f7f7fb;
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px #ccc;
+}
+h1 {
+  color: #1d72b8;
+  text-align: center;
+}
+#cheer-message {
+  background: #fffbe6;
+  color: #b8860b;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-left: 5px solid #ffe066;
+  border-radius: 5px;
+  font-weight: bold;
+}
+#goal-container {
+  margin-bottom: 20px;
+  background: #f0f8ff;
+  padding: 10px;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px #e0e0e0;
+}
+#goal-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+#goal-form input {
+  width: 80px;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+#goal-form button {
+  background: #1d72b8;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+#goal-form button:hover {
+  background: #155a8a;
+}
+#goal-progress {
+  font-size: 0.98em;
+  color: #156c3c;
+  margin-left: 4px;
+}
+form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+form input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+form button {
+  background: #1d72b8;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+form button:hover {
+  background: #155a8a;
+}
+#record-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 32px;
+}
+#record-list li {
+  background: #fff;
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px #eee;
+  font-size: 0.97em;
+}
+canvas {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px #eee;
+  margin-bottom: 16px;
+}
