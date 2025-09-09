@@ -32,7 +32,7 @@ const cheerMessages = [
   "諦めたらそこで終わりなんだから。最後までやりなさい！"
 ];
 
-// 起動時に応援コメント表示
+// 応援コメント表示
 function showCheerMessage() {
   const idx = Math.floor(Math.random() * cheerMessages.length);
   document.getElementById('cheer-message').textContent = cheerMessages[idx];
@@ -152,17 +152,38 @@ function renderChart() {
   });
 }
 
-// 勉強記録フォーム
-document.getElementById('study-form').addEventListener('submit', (e) => {
-  e.preventDefault();
+// タイマー機能
+let startTime = null;
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  startTime = new Date();
+  document.getElementById('start-btn').style.display = 'none';
+  document.getElementById('stop-btn').style.display = '';
+  document.getElementById('timer-info').textContent = `開始: ${startTime.toLocaleTimeString()}`;
+  document.getElementById('subject').disabled = false; // 入力可能
+});
+
+document.getElementById('stop-btn').addEventListener('click', () => {
+  if (!startTime) return;
+  const endTime = new Date();
   const subject = document.getElementById('subject').value.trim();
-  const startTime = document.getElementById('start-time').value;
-  const endTime = document.getElementById('end-time').value;
-  const minutes = document.getElementById('minutes').value;
   const memo = document.getElementById('memo').value.trim();
-  if (subject && minutes > 0) {
-    addRecord(subject, startTime, endTime, minutes, memo);
-    e.target.reset();
+  const minutes = Math.max(1, Math.round((endTime - startTime) / 60000)); // 1分未満でも1分
+  if (subject) {
+    addRecord(
+      subject,
+      startTime.toTimeString().slice(0,5),
+      endTime.toTimeString().slice(0,5),
+      minutes,
+      memo
+    );
+    document.getElementById('study-form').reset();
+    document.getElementById('timer-info').textContent = '';
+    startTime = null;
+    document.getElementById('start-btn').style.display = '';
+    document.getElementById('stop-btn').style.display = 'none';
+  } else {
+    alert('科目を入力してください');
   }
 });
 
@@ -183,3 +204,8 @@ showCheerMessage();
 renderRecords();
 renderGoalProgress();
 renderChart();
+
+// 開始時のボタン状態
+document.getElementById('stop-btn').style.display = 'none';
+document.getElementById('start-btn').style.display = '';
+document.getElementById('subject').disabled = false;
