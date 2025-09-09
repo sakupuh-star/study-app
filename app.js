@@ -57,11 +57,13 @@ function saveRecords(records) {
 }
 
 // 記録を追加
-function addRecord(subject, minutes, memo) {
+function addRecord(subject, startTime, endTime, minutes, memo) {
   const records = getRecords();
   records.push({
     date: new Date().toISOString().slice(0,10),
     subject,
+    startTime,
+    endTime,
     minutes: Number(minutes),
     memo
   });
@@ -77,8 +79,10 @@ function renderRecords() {
   const records = getRecords();
   list.innerHTML = '';
   records.slice().reverse().forEach(r => {
+    const timeInfo = r.startTime && r.endTime ? `｜${r.startTime}〜${r.endTime}` : '';
+    const memoInfo = r.memo ? `｜${r.memo}` : '';
     const li = document.createElement('li');
-    li.textContent = `${r.date}｜${r.subject}｜${r.minutes}分${r.memo ? '｜' + r.memo : ''}`;
+    li.textContent = `${r.date}｜${r.subject}${timeInfo}｜${r.minutes}分${memoInfo}`;
     list.appendChild(li);
   });
 }
@@ -152,10 +156,12 @@ function renderChart() {
 document.getElementById('study-form').addEventListener('submit', (e) => {
   e.preventDefault();
   const subject = document.getElementById('subject').value.trim();
+  const startTime = document.getElementById('start-time').value;
+  const endTime = document.getElementById('end-time').value;
   const minutes = document.getElementById('minutes').value;
   const memo = document.getElementById('memo').value.trim();
   if (subject && minutes > 0) {
-    addRecord(subject, minutes, memo);
+    addRecord(subject, startTime, endTime, minutes, memo);
     e.target.reset();
   }
 });
