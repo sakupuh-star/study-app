@@ -16,12 +16,14 @@
     </form>
     <div id="goal-progress"></div>
   </div>
-  <form id="study-form">
-    <input type="text" id="subject" placeholder="科目" required>
-    <input type="number" id="minutes" placeholder="勉強時間（分）" min="1" required>
-    <input type="text" id="memo" placeholder="メモ">
-    <button type="submit">記録する</button>
-  </form>
+<form id="study-form">
+  <input type="text" id="subject" placeholder="科目" required>
+  <input type="time" id="start-time" required>
+  <input type="time" id="end-time" required>
+  <input type="number" id="minutes" placeholder="勉強時間（分）" min="1" required>
+  <input type="text" id="memo" placeholder="メモ">
+  <button type="submit">記録する</button>
+</form>
   <h2>記録一覧</h2>
   <ul id="record-list"></ul>
   <h2>勉強時間グラフ</h2>
