@@ -107,19 +107,69 @@ function renderGoalProgress() {
   document.getElementById('goal-progress').textContent = msg;
 }
 
+// ====== グラフ期間切替機能ここから ======
+let chartRange = 'day'; // デフォルトは「1日」表示
+let chart; // Chart.jsインスタンス
+
+// 期間切替ボタンのイベント登録
+window.addEventListener('DOMContentLoaded', () => {
+  const rangeBtns = document.querySelectorAll('#chart-range button');
+  rangeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      chartRange = btn.dataset.range;
+      rangeBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderChart();
+    });
+  });
+  // 初期表示で「1日」ボタンをactiveに
+  document.querySelector('#chart-range button[data-range="day"]').classList.add('active');
+});
+
+// レコードを期間でフィルタ
+function filterRecordsByRange(records, range) {
+  const now = new Date();
+  let from;
+  if (range === 'day') {
+    from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  } else if (range === 'week') {
+    from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+  } else if (range === 'month') {
+    from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
+  }
+  return records.filter(r => new Date(r.date) >= from);
+}
+
+// 日付ごとにデータを集計
+function aggregateStudyData(records, range) {
+  const map = {};
+  records.forEach(r => {
+    const d = new Date(r.date);
+    const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    map[key] = (map[key] || 0) + r.minutes;
+  });
+  const labels = [];
+  const data = [];
+  const now = new Date();
+  let days = 1;
+  if (range === 'day') days = 1;
+  else if (range === 'week') days = 7;
+  else if (range === 'month') days = 30;
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    labels.push(`${d.getMonth() + 1}/${d.getDate()}`);
+    data.push(map[key] || 0);
+  }
+  return { labels, data };
+}
+
 // グラフ描画
-let chart;
 function renderChart() {
   const ctx = document.getElementById('studyChart').getContext('2d');
   const records = getRecords();
-
-  // 日付ごとに合計
-  const dateMap = {};
-  records.forEach(r => {
-    dateMap[r.date] = (dateMap[r.date] || 0) + r.minutes;
-  });
-  const labels = Object.keys(dateMap).sort();
-  const data = labels.map(date => dateMap[date]);
+  const filtered = filterRecordsByRange(records, chartRange);
+  const { labels, data } = aggregateStudyData(filtered, chartRange);
 
   const goal = getGoalMinutes();
   const goalLine = goal ? labels.map(_ => goal) : null;
@@ -151,6 +201,7 @@ function renderChart() {
     }
   });
 }
+// ====== グラフ期間切替機能ここまで ======
 
 // タイマー機能
 let startTime = null;
@@ -160,7 +211,7 @@ document.getElementById('start-btn').addEventListener('click', () => {
   document.getElementById('start-btn').style.display = 'none';
   document.getElementById('stop-btn').style.display = '';
   document.getElementById('timer-info').textContent = `開始: ${startTime.toLocaleTimeString()}`;
-  document.getElementById('subject').disabled = false; // 入力可能
+  document.getElementById('subject').disabled = false;
 });
 
 document.getElementById('stop-btn').addEventListener('click', () => {
@@ -168,7 +219,7 @@ document.getElementById('stop-btn').addEventListener('click', () => {
   const endTime = new Date();
   const subject = document.getElementById('subject').value.trim();
   const memo = document.getElementById('memo').value.trim();
-  const minutes = Math.max(1, Math.round((endTime - startTime) / 60000)); // 1分未満でも1分
+  const minutes = Math.max(1, Math.round((endTime - startTime) / 60000));
   if (subject) {
     addRecord(
       subject,
@@ -205,7 +256,6 @@ renderRecords();
 renderGoalProgress();
 renderChart();
 
-// 開始時のボタン状態
 document.getElementById('stop-btn').style.display = 'none';
 document.getElementById('start-btn').style.display = '';
 document.getElementById('subject').disabled = false;
