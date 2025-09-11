@@ -26,6 +26,12 @@
   <h2>記録一覧</h2>
   <ul id="record-list"></ul>
   <h2>勉強時間グラフ</h2>
+  <!-- ▼ グラフ期間切替ボタンを追加 -->
+  <div id="chart-range">
+    <button type="button" data-range="day">1日</button>
+    <button type="button" data-range="week">過去1週間</button>
+    <button type="button" data-range="month">過去1か月</button>
+  </div>
   <canvas id="studyChart" width="400" height="200"></canvas>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="app.js"></script>
