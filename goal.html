@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>目標設定 - まいみーべんきょうがんばるたいまー</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>目標設定</h1>
+  <form id="goal-form-day" class="goal-form">
+    <label>今日の目標（分）：</label>
+    <input type="number" id="goal-minutes-day" min="1" placeholder="例: 120">
+    <button type="submit">設定</button>
+  </form>
+  <div id="goal-progress-day"></div>
+
+  <form id="goal-form-week" class="goal-form">
+    <label>今週の目標（分）：</label>
+    <input type="number" id="goal-minutes-week" min="1" placeholder="例: 600">
+    <button type="submit">設定</button>
+  </form>
+  <div id="goal-progress-week"></div>
+
+  <form id="goal-form-month" class="goal-form">
+    <label>今月の目標（分）：</label>
+    <input type="number" id="goal-minutes-month" min="1" placeholder="例: 2400">
+    <button type="submit">設定</button>
+  </form>
+  <div id="goal-progress-month"></div>
+
+  <a href="index.html">← 戻る</a>
+  <script src="goal.js"></script>
+</body>
+</html>

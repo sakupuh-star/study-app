@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>まいみーべんきょうがんばるたいまー</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>まいみーべんきょうがんばるたいまー</h1>
+  <div id="cheer-message"></div>
+
+  <div id="goal-summary">
+    <div id="goal-progress-day"></div>
+    <div id="goal-progress-week"></div>
+    <div id="goal-progress-month"></div>
+    <a href="goal.html" id="to-goal-page">▶ 目標を設定・編集する</a>
+  </div>
+
+  <form id="study-form">
+    <input type="text" id="subject" placeholder="科目" required>
+    <input type="text" id="memo" placeholder="メモ">
+    <button type="button" id="start-btn">開始</button>
+    <button type="button" id="stop-btn" style="display:none;">終了</button>
+    <span id="timer-info"></span>
+  </form>
+
+  <h2>記録一覧</h2>
+  <ul id="record-list"></ul>
+
+  <h2>勉強時間グラフ</h2>
+  <div id="chart-range">
+    <button type="button" data-range="day">1日</button>
+    <button type="button" data-range="week">過去1週間</button>
+    <button type="button" data-range="month">過去1か月</button>
+  </div>
+  <canvas id="studyChart" width="400" height="200"></canvas>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
