@@ -96,3 +96,32 @@ canvas#studyChart {
   margin-bottom: 30px;
   margin-top: 2px;
 }
+#chart-range {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 8px 0 14px 0;
+}
+
+#chart-range button {
+  background: #f0f7ff;
+  color: #1d72b8;
+  border: 1px solid #b3d7fa;
+  border-radius: 5px;
+  padding: 6px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border 0.15s;
+}
+
+#chart-range button.active,
+#chart-range button:focus {
+  background: #1d72b8;
+  color: #fff;
+  border-color: #1d72b8;
+}
+
+#chart-range button:hover:not(.active):not(:disabled) {
+  background: #eaf4fc;
+  color: #155a91;
+}
