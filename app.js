@@ -38,12 +38,12 @@ function showCheerMessage() {
   document.getElementById('cheer-message').textContent = cheerMessages[idx];
 }
 
-// 目標時間の取得・保存
-function getGoalMinutes() {
-  return Number(localStorage.getItem('goalMinutes') || 0);
+// 目標時間（day, week, month）の取得・保存
+function getGoalMinutes(mode) {
+  return Number(localStorage.getItem('goalMinutes_' + mode) || 0);
 }
-function setGoalMinutes(minutes) {
-  localStorage.setItem('goalMinutes', minutes);
+function setGoalMinutes(mode, minutes) {
+  localStorage.setItem('goalMinutes_' + mode, minutes);
 }
 
 // ローカルストレージから記録を取得
@@ -70,7 +70,7 @@ function addRecord(subject, startTime, endTime, minutes, memo) {
   saveRecords(records);
   renderRecords();
   renderChart();
-  renderGoalProgress();
+  renderGoalProgressAll();
 }
 
 // 記録一覧表示
@@ -87,32 +87,73 @@ function renderRecords() {
   });
 }
 
-// 目標と進捗の表示
-function renderGoalProgress() {
-  const goal = getGoalMinutes();
+// 目標と進捗の表示（共通化）
+function renderGoalProgress(mode) {
+  let goal = getGoalMinutes(mode);
+  let progressElem = document.getElementById('goal-progress-' + mode);
+
   if (!goal) {
-    document.getElementById('goal-progress').textContent = '';
+    progressElem.textContent = '';
     return;
   }
-  // 今日の日付
-  const today = new Date().toISOString().slice(0,10);
-  const records = getRecords().filter(r => r.date === today);
-  const total = records.reduce((sum, r) => sum + r.minutes, 0);
-  let msg = `今日の勉強：${total}分 / 目標：${goal}分`;
-  if (total >= goal) {
-    msg += "　目標達成おめでとう！";
-  } else {
-    msg += `　あと${goal-total}分がんばって！`;
+  let records = getRecords();
+  let total = 0, msg = '';
+  let remain = 0;
+  if (mode === 'day') {
+    // 今日
+    const today = new Date().toISOString().slice(0,10);
+    total = records.filter(r => r.date === today).reduce((sum, r) => sum + r.minutes, 0);
+    remain = Math.max(0, goal - total);
+    msg = `今日の勉強：${total}分 / 目標：${goal}分`;
+    msg += `　残り：${remain}分`;
+    if (total >= goal) msg += "　目標達成おめでとう！";
+    else msg += `　あと${remain}分がんばって！`;
+  } else if (mode === 'week') {
+    // 今週
+    const weekDates = getPastDates(7);
+    total = records.filter(r => weekDates.includes(r.date)).reduce((sum, r) => sum + r.minutes, 0);
+    remain = Math.max(0, goal - total);
+    msg = `今週の勉強：${total}分 / 目標：${goal}分`;
+    msg += `　残り：${remain}分`;
+    if (total >= goal) msg += "　目標達成おめでとう！";
+    else msg += `　あと${remain}分がんばって！`;
+  } else if (mode === 'month') {
+    // 今月
+    const monthDates = getPastDates(30);
+    total = records.filter(r => monthDates.includes(r.date)).reduce((sum, r) => sum + r.minutes, 0);
+    remain = Math.max(0, goal - total);
+    msg = `今月の勉強：${total}分 / 目標：${goal}分`;
+    msg += `　残り：${remain}分`;
+    if (total >= goal) msg += "　目標達成おめでとう！";
+    else msg += `　あと${remain}分がんばって！`;
   }
-  document.getElementById('goal-progress').textContent = msg;
+  progressElem.textContent = msg;
 }
 
-// ====== グラフ期間切替機能ここから ======
+// 過去N日分の日付（YYYY-MM-DD文字列配列）を返す
+function getPastDates(days) {
+  const arr = [];
+  const now = new Date();
+  for (let i = 0; i < days; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    arr.push(d.toISOString().slice(0,10));
+  }
+  return arr;
+}
+
+// 全ての目標進捗表示
+function renderGoalProgressAll() {
+  renderGoalProgress('day');
+  renderGoalProgress('week');
+  renderGoalProgress('month');
+}
+
+// ====== グラフ期間切替機能 ======
 let chartRange = 'day'; // デフォルトは「1日」表示
 let chart; // Chart.jsインスタンス
 
-// 期間切替ボタンのイベント登録
 window.addEventListener('DOMContentLoaded', () => {
+  // 期間切替ボタン
   const rangeBtns = document.querySelectorAll('#chart-range button');
   rangeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -122,7 +163,6 @@ window.addEventListener('DOMContentLoaded', () => {
       renderChart();
     });
   });
-  // 初期表示で「1日」ボタンをactiveに
   document.querySelector('#chart-range button[data-range="day"]').classList.add('active');
 });
 
@@ -171,7 +211,11 @@ function renderChart() {
   const filtered = filterRecordsByRange(records, chartRange);
   const { labels, data } = aggregateStudyData(filtered, chartRange);
 
-  const goal = getGoalMinutes();
+  // 目標線
+  let goal = 0;
+  if (chartRange === 'day') goal = getGoalMinutes('day');
+  else if (chartRange === 'week') goal = getGoalMinutes('week') / 7;
+  else if (chartRange === 'month') goal = getGoalMinutes('month') / 30;
   const goalLine = goal ? labels.map(_ => goal) : null;
 
   if (chart) chart.destroy();
@@ -186,7 +230,7 @@ function renderChart() {
           backgroundColor: '#1d72b8'
         },
         ...(goalLine ? [{
-          label: '目標時間',
+          label: '目標時間(1日あたり)',
           type: 'line',
           data: goalLine,
           borderColor: 'red',
@@ -201,7 +245,7 @@ function renderChart() {
     }
   });
 }
-// ====== グラフ期間切替機能ここまで ======
+// ====== グラフ期間切替ここまで ======
 
 // タイマー機能
 let startTime = null;
@@ -239,12 +283,32 @@ document.getElementById('stop-btn').addEventListener('click', () => {
 });
 
 // 目標設定フォーム
-document.getElementById('goal-form').addEventListener('submit', (e) => {
+document.getElementById('goal-form-day').addEventListener('submit', (e) => {
   e.preventDefault();
-  const minutes = Number(document.getElementById('goal-minutes').value);
+  const minutes = Number(document.getElementById('goal-minutes-day').value);
   if (minutes > 0) {
-    setGoalMinutes(minutes);
-    renderGoalProgress();
+    setGoalMinutes('day', minutes);
+    renderGoalProgress('day');
+    renderChart();
+    e.target.reset();
+  }
+});
+document.getElementById('goal-form-week').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const minutes = Number(document.getElementById('goal-minutes-week').value);
+  if (minutes > 0) {
+    setGoalMinutes('week', minutes);
+    renderGoalProgress('week');
+    renderChart();
+    e.target.reset();
+  }
+});
+document.getElementById('goal-form-month').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const minutes = Number(document.getElementById('goal-minutes-month').value);
+  if (minutes > 0) {
+    setGoalMinutes('month', minutes);
+    renderGoalProgress('month');
     renderChart();
     e.target.reset();
   }
@@ -253,7 +317,7 @@ document.getElementById('goal-form').addEventListener('submit', (e) => {
 // 初期化
 showCheerMessage();
 renderRecords();
-renderGoalProgress();
+renderGoalProgressAll();
 renderChart();
 
 document.getElementById('stop-btn').style.display = 'none';
